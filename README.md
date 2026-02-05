@@ -7,410 +7,407 @@
     <title>I+D HUB - Plataforma de Innovación</title>
     <!-- Tailwind CSS para el diseño -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React y Babel para ejecutar la lógica en un solo archivo -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Lucide Icons para los iconos -->
+    <!-- Lucide Icons para los iconos (Carga ligera) -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        :root {
+            --bg-dark: #020617;
+            --card-bg: #0f172a;
+            --accent: #4f46e5;
+        }
+
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: #0f172a; 
+            background-color: var(--bg-dark); 
             color: #e2e8f0; 
             margin: 0; 
+            overflow-x: hidden;
         }
+
+        .sidebar-active { 
+            background-color: var(--accent); 
+            color: white; 
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3); 
+        }
+
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .glass { 
             background: rgba(255, 255, 255, 0.03); 
             backdrop-filter: blur(10px); 
             border: 1px solid rgba(255, 255, 255, 0.05); 
         }
-        .sidebar-active { 
-            background-color: #4f46e5; 
-            color: white; 
-            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3); 
-        }
-        /* Animaciones */
-        .fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+
+        input:focus { ring: 2px solid var(--accent); outline: none; }
     </style>
 </head>
 <body>
-    <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-
-        // Componente de Icono corregido para asegurar renderizado
-        const Icon = ({ name, size = 20, className = "" }) => {
-            const iconRef = useRef(null);
-
-            useEffect(() => {
-                if (window.lucide && name) {
-                    // Reemplaza el contenido del elemento con el icono de Lucide
-                    const iconElement = document.createElement('i');
-                    iconElement.setAttribute('data-lucide', name);
-                    iconElement.style.width = `${size}px`;
-                    iconElement.style.height = `${size}px`;
-                    
-                    if (iconRef.current) {
-                        iconRef.current.innerHTML = '';
-                        iconRef.current.appendChild(iconElement);
-                        window.lucide.createIcons({
-                            elements: [iconElement]
-                        });
-                    }
-                }
-            }, [name, size]);
-
-            return <span ref={iconRef} className={`inline-flex items-center justify-center ${className}`} style={{ width: size, height: size }}></span>;
-        };
-
-        const App = () => {
-            const [isAuthenticated, setIsAuthenticated] = useState(false);
-            const [activeTab, setActiveTab] = useState('dashboard');
-            const [coins, setCoins] = useState(1250);
-            const [user, setUser] = useState({ name: "Alex I+D", role: "Investigador Senior", dept: "Biotecnología" });
-            const [loginError, setLoginError] = useState('');
-
-            // Credenciales Demo
-            const [email, setEmail] = useState('Alex@idcorp.com');
-            const [password, setPassword] = useState('idcorp2024');
-
-            const handleLogin = (e) => {
-                e.preventDefault();
-                if (email.toLowerCase() === 'alex@idcorp.com' && password === 'idcorp2024') {
-                    setIsAuthenticated(true);
-                    setLoginError('');
-                } else {
-                    setLoginError('Credenciales incorrectas para la demo.');
-                }
-            };
-
-            if (!isAuthenticated) {
-                return (
-                    <div className="min-h-screen flex items-center justify-center p-4 bg-[#020617]">
-                        <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 shadow-2xl fade-in text-center">
-                            <div className="bg-indigo-600/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-indigo-500/30">
-                                <Icon name="lock" size={32} className="text-indigo-400" />
-                            </div>
-                            <h1 className="text-2xl font-black text-white italic uppercase tracking-tighter mb-2">Acceso I+D Corp</h1>
-                            <p className="text-slate-400 text-sm mb-8">Credenciales de Alex actualizadas</p>
-                            
-                            <form onSubmit={handleLogin} className="space-y-4 text-left">
-                                <div>
-                                    <label className="text-xs font-bold text-slate-500 uppercase ml-2 block mb-1">Email Corporativo</label>
-                                    <input 
-                                        type="email" 
-                                        value={email} 
-                                        onChange={e => setEmail(e.target.value)} 
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
-                                        placeholder="alex@idcorp.com"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-bold text-slate-500 uppercase ml-2 block mb-1">Contraseña</label>
-                                    <input 
-                                        type="password" 
-                                        value={password} 
-                                        onChange={e => setPassword(e.target.value)} 
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
-                                        placeholder="••••••••"
-                                    />
-                                </div>
-                                {loginError && <p className="text-rose-500 text-xs ml-2 font-bold">{loginError}</p>}
-                                <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-sm mt-6">
-                                    Entrar al Ecosistema <Icon name="chevron-right" size={18} />
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                );
-            }
-
-            return (
-                <div className="min-h-screen flex flex-col md:flex-row bg-[#020617]">
-                    {/* Sidebar */}
-                    <aside className="w-full md:w-64 bg-slate-900 border-r border-slate-800 p-4 flex flex-col shrink-0">
-                        <div className="mb-10 p-2 text-center md:text-left">
-                            <h2 className="text-indigo-400 font-black italic text-2xl tracking-tighter uppercase">I+D HUB</h2>
-                        </div>
-                        <nav className="flex-grow space-y-2">
-                            {[
-                                { id: 'dashboard', label: 'Dashboard', icon: 'map' },
-                                { id: 'contrato', label: 'Contrato 3D', icon: 'trending-up' },
-                                { id: 'misiones', label: 'Misiones Pro', icon: 'zap' },
-                                { id: 'micropolix', label: 'Micropolix', icon: 'building-2' },
-                                { id: 'bonos', label: 'Bonificaciones', icon: 'gift' }
-                            ].map(item => (
-                                <button 
-                                    key={item.id}
-                                    onClick={() => setActiveTab(item.id)}
-                                    className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold text-sm transition-all ${activeTab === item.id ? 'sidebar-active' : 'text-slate-400 hover:bg-slate-800'}`}
-                                >
-                                    <Icon name={item.icon} size={20} />
-                                    <span className="truncate">{item.label}</span>
-                                </button>
-                            ))}
-                        </nav>
-                        <div className="mt-auto p-2 pt-6 border-t border-slate-800">
-                            <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex items-center gap-3 mb-4 text-amber-500">
-                                <Icon name="coins" size={20} />
-                                <span className="font-black text-xl">{coins}</span>
-                                <span className="text-[10px] uppercase font-black opacity-60">Credits</span>
-                            </div>
-                            <button onClick={() => setIsAuthenticated(false)} className="w-full flex items-center gap-3 px-4 py-3 text-rose-500 font-bold hover:bg-rose-500/10 rounded-xl transition-all">
-                                <Icon name="log-out" size={20} />
-                                <span className="text-xs uppercase tracking-widest">Cerrar Sesión</span>
-                            </button>
-                        </div>
-                    </aside>
-
-                    {/* Content Area */}
-                    <main className="flex-grow p-6 md:p-12 overflow-y-auto">
-                        <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-                            <div className="fade-in">
-                                <h1 className="text-3xl md:text-4xl font-black text-white italic uppercase tracking-tighter leading-none mb-2">
-                                    {activeTab === 'dashboard' && 'Ecosistema de Impacto'}
-                                    {activeTab === 'contrato' && 'Dimensión 1: Contrato 3D'}
-                                    {activeTab === 'misiones' && 'Dimensión 2: Misiones Pro'}
-                                    {activeTab === 'micropolix' && 'Dimensión 3: Micropolix'}
-                                    {activeTab === 'bonos' && 'Bonus Marketplace'}
-                                </h1>
-                                <p className="text-slate-500 font-bold uppercase text-[10px] md:text-xs tracking-widest">{user.name} • {user.dept}</p>
-                            </div>
-                        </header>
-
-                        <div className="fade-in">
-                            {activeTab === 'dashboard' && <DashboardView setTab={setActiveTab} coins={coins} />}
-                            {activeTab === 'contrato' && <Contrato3DView updateCoins={setCoins} />}
-                            {activeTab === 'misiones' && <MisionesProView updateCoins={setCoins} />}
-                            {activeTab === 'micropolix' && <MicropolixView />}
-                            {activeTab === 'bonos' && <BonosView currentCoins={coins} updateCoins={setCoins} />}
-                        </div>
-                    </main>
-                </div>
-            );
-        };
-
-        const DashboardView = ({ setTab, coins }) => (
-            <div className="grid lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-8">
-                    <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-[3rem] p-8 md:p-10 shadow-2xl relative overflow-hidden text-white">
-                        <div className="relative z-10 space-y-4">
-                            <h2 className="text-3xl md:text-4xl font-black italic uppercase leading-tight">Tu impacto cultural<br/>está creciendo</h2>
-                            <p className="text-indigo-100/80 max-w-md text-sm leading-relaxed">Has completado el 84% de tus hitos trimestrales. Desbloquea misiones Pro para conseguir Bio-Credits.</p>
-                            <button onClick={() => setTab('misiones')} className="bg-white text-indigo-600 px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all">Ir a Misiones</button>
-                        </div>
-                        <Icon name="zap" size={180} className="absolute right-[-40px] bottom-[-40px] opacity-10 rotate-12" />
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="bg-slate-900 border border-slate-800 rounded-[2rem] p-8">
-                            <div className="flex justify-between items-center mb-2">
-                                <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Evolución</p>
-                                <Icon name="trophy" size={16} className="text-amber-500" />
-                            </div>
-                            <p className="text-4xl font-black text-white leading-none">84%</p>
-                        </div>
-                        <div className="bg-slate-900 border border-slate-800 rounded-[2rem] p-8">
-                            <div className="flex justify-between items-center mb-2">
-                                <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Bio-Credits</p>
-                                <Icon name="coins" size={16} className="text-amber-500" />
-                            </div>
-                            <p className="text-4xl font-black text-white leading-none">{coins}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-slate-900/50 border border-slate-800 rounded-[3rem] p-8">
-                    <h3 className="text-lg font-black text-white italic uppercase mb-6 flex items-center gap-2">
-                        <Icon name="mail" size={18} className="text-indigo-400" /> Notificaciones
-                    </h3>
-                    <div className="space-y-4">
-                        <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                            <p className="text-xs font-bold mb-1 uppercase text-indigo-300">Nueva Misión Flash</p>
-                            <p className="text-xs text-slate-400 leading-relaxed">Conecta con alguien de Logística y descubre su hobby secreto.</p>
-                        </div>
-                        <div className="p-4 border border-white/5 rounded-2xl opacity-50">
-                            <p className="text-xs font-bold mb-1 uppercase">Bonificación Canjeada</p>
-                            <p className="text-xs text-slate-500">Has recibido 50€ en tu Ticket Restaurante.</p>
-                        </div>
-                    </div>
-                </div>
+    <!-- Contenedor de Autenticación -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 shadow-2xl text-center">
+            <div class="bg-indigo-600/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-indigo-500/30">
+                <i data-lucide="lock" class="text-indigo-400 w-8 h-8"></i>
             </div>
-        );
-
-        const Contrato3DView = ({ updateCoins }) => {
-            const [done, setDone] = useState([false, false, false]);
-            const complete = (i) => {
-                if(!done[i]) {
-                    const next = [...done]; next[i] = true; setDone(next);
-                    updateCoins(c => c + 200);
-                }
-            };
-            return (
-                <div className="space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <DimensionCard 
-                            icon="user" title="Visión Propia" color="indigo"
-                            desc="Define cómo te ves hoy en tu puesto, tus motivaciones y propósito personal."
-                            done={done[0]} onAction={() => complete(0)} 
-                        />
-                        <DimensionCard 
-                            icon="users" title="Visión Equipo" color="purple"
-                            desc="El impacto que generas en los demás. Cómo te percibe tu equipo de I+D."
-                            done={done[1]} onAction={() => complete(1)} 
-                        />
-                        <DimensionCard 
-                            icon="trending-up" title="Desarrollo" color="amber"
-                            desc="Tu plan de crecimiento a 90 días. Desbloquea nuevas habilidades técnicas."
-                            done={done[2]} onAction={() => complete(2)} 
-                        />
-                    </div>
-                    <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 text-sm leading-relaxed text-slate-400">
-                        <h4 className="font-black text-white uppercase italic mb-2">¿Por qué hablamos de 3 Dimensiones?</h4>
-                        En nuestra empresa de I+D, no eres una pieza estática. El Contrato 3D asegura que tu visión personal, la percepción de tu equipo y tu plan de carrera estén alineados. Cada dimensión completada te otorga 200 Bio-Credits para canjear por beneficios reales.
-                    </div>
+            <h1 class="text-2xl font-black text-white italic uppercase tracking-tighter mb-2">Acceso I+D Corp</h1>
+            <p class="text-slate-400 text-sm mb-8">Credenciales preestablecidas para Alex</p>
+            
+            <form id="login-form" class="space-y-4 text-left">
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase ml-2 block mb-1">Email Corporativo</label>
+                    <input type="email" id="email" value="Alex@idcorp.com" class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white">
                 </div>
-            );
-        };
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase ml-2 block mb-1">Contraseña</label>
+                    <input type="password" id="password" value="idcorp2024" class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white">
+                </div>
+                <p id="login-error" class="text-rose-500 text-xs font-bold hidden">Credenciales incorrectas.</p>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest text-sm mt-6">
+                    Entrar al Ecosistema <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                </button>
+            </form>
+        </div>
+    </div>
 
-        const DimensionCard = ({ icon, title, desc, done, onAction, color }) => (
-            <div className={`p-8 rounded-[2.5rem] border transition-all ${done ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-slate-900 border-slate-800'}`}>
-                <Icon name={icon} size={40} className={`text-${color}-400 mb-6`} />
-                <h3 className="text-xl font-black text-white uppercase italic mb-2">{title}</h3>
-                <p className="text-slate-400 text-xs leading-relaxed mb-6">{desc}</p>
-                <button 
-                    onClick={onAction} 
-                    disabled={done}
-                    className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${done ? 'bg-emerald-500 text-white shadow-lg' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`}
-                >
-                    {done ? 'Completado +200' : 'Completar Dimensión'}
+    <!-- Contenedor Principal de la App -->
+    <div id="app-screen" class="min-h-screen hidden flex flex-col md:flex-row">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 bg-slate-900 border-r border-slate-800 p-4 flex flex-col shrink-0">
+            <div class="mb-10 p-2 text-center md:text-left">
+                <h2 class="text-indigo-400 font-black italic text-2xl tracking-tighter uppercase leading-none">I+D HUB</h2>
+            </div>
+            <nav id="nav-links" class="flex-grow space-y-2">
+                <button onclick="navigate('dashboard')" id="nav-dashboard" class="sidebar-btn w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold text-sm transition-all sidebar-active">
+                    <i data-lucide="map" class="w-5 h-5"></i> Dashboard
+                </button>
+                <button onclick="navigate('contrato')" id="nav-contrato" class="sidebar-btn w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold text-sm transition-all text-slate-400 hover:bg-slate-800">
+                    <i data-lucide="trending-up" class="w-5 h-5"></i> Contrato 3D
+                </button>
+                <button onclick="navigate('misiones')" id="nav-misiones" class="sidebar-btn w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold text-sm transition-all text-slate-400 hover:bg-slate-800">
+                    <i data-lucide="zap" class="w-5 h-5"></i> Misiones Pro
+                </button>
+                <button onclick="navigate('micropolix')" id="nav-micropolix" class="sidebar-btn w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold text-sm transition-all text-slate-400 hover:bg-slate-800">
+                    <i data-lucide="building-2" class="w-5 h-5"></i> Micropolix
+                </button>
+                <button onclick="navigate('bonos')" id="nav-bonos" class="sidebar-btn w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold text-sm transition-all text-slate-400 hover:bg-slate-800">
+                    <i data-lucide="gift" class="w-5 h-5"></i> Bonificaciones
+                </button>
+            </nav>
+            
+            <div class="mt-auto p-2 pt-6 border-t border-slate-800">
+                <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex items-center gap-3 mb-4 text-amber-500">
+                    <i data-lucide="coins" class="w-5 h-5"></i>
+                    <span id="bio-credits-display" class="font-black text-xl">1250</span>
+                    <span class="text-[10px] uppercase font-black opacity-60">Credits</span>
+                </div>
+                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 text-rose-500 font-bold hover:bg-rose-500/10 rounded-xl transition-all">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                    <span class="text-xs uppercase tracking-widest">Cerrar Sesión</span>
                 </button>
             </div>
-        );
+        </aside>
 
-        const MisionesProView = ({ updateCoins }) => {
-            const [m, setM] = useState(null);
-            const [load, setLoad] = useState(false);
-            const roll = () => {
-                setLoad(true);
-                setTimeout(() => {
-                    const names = ["Lucía (IT)", "Marc (Legal)", "Sara (Marketing)", "Hugo (Procesos)"];
-                    const tasks = ["color favorito", "hobby secreto", "canción para trabajar", "mayor logro del año"];
-                    setM({ n: names[Math.floor(Math.random()*4)], t: tasks[Math.floor(Math.random()*4)] });
-                    setLoad(false);
-                }, 1000);
+        <!-- Área de Contenido -->
+        <main class="flex-grow p-6 md:p-12 overflow-y-auto" id="main-content">
+            <!-- El contenido se inyecta vía JS -->
+        </main>
+    </div>
+
+    <script>
+        // --- ESTADO GLOBAL ---
+        let state = {
+            isAuthenticated: false,
+            activeTab: 'dashboard',
+            coins: 1250,
+            user: { name: "Alex I+D", dept: "Biotecnología" },
+            doneDimensions: [false, false, false],
+            currentMission: null
+        };
+
+        // --- LÓGICA DE NAVEGACIÓN Y RENDERIZADO ---
+        function navigate(tab) {
+            state.activeTab = tab;
+            updateSidebar();
+            renderContent();
+        }
+
+        function updateSidebar() {
+            document.querySelectorAll('.sidebar-btn').forEach(btn => {
+                btn.classList.remove('sidebar-active');
+                btn.classList.add('text-slate-400');
+            });
+            const activeBtn = document.getElementById('nav-' + state.activeTab);
+            if(activeBtn) {
+                activeBtn.classList.add('sidebar-active');
+                activeBtn.classList.remove('text-slate-400');
+            }
+        }
+
+        function renderContent() {
+            const container = document.getElementById('main-content');
+            container.innerHTML = ''; // Limpiar
+            
+            let html = `
+                <header class="mb-10 fade-in">
+                    <h1 class="text-3xl md:text-4xl font-black text-white italic uppercase tracking-tighter leading-none mb-2">
+                        ${getTitle(state.activeTab)}
+                    </h1>
+                    <p class="text-slate-500 font-bold uppercase text-[10px] md:text-xs tracking-widest">
+                        ${state.user.name} • ${state.user.dept}
+                    </p>
+                </header>
+                <div class="fade-in">
+                    ${getViewHTML(state.activeTab)}
+                </div>
+            `;
+            container.innerHTML = html;
+            lucide.createIcons(); // Re-inicializar iconos
+        }
+
+        function getTitle(tab) {
+            const titles = {
+                dashboard: 'Ecosistema de Impacto',
+                contrato: 'Dimensión 1: Contrato 3D',
+                misiones: 'Dimensión 2: Misiones Pro',
+                micropolix: 'Dimensión 3: Micropolix',
+                bonos: 'Bonus Marketplace'
             };
-            return (
-                <div className="max-w-2xl mx-auto bg-slate-900 border border-slate-800 rounded-[3rem] p-10 text-center">
-                    <div className="bg-indigo-600/20 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-indigo-500/20">
-                        <Icon name="zap" size={40} className="text-indigo-400" />
-                    </div>
-                    <h2 className="text-3xl font-black text-white italic uppercase mb-2">Misiones Flash</h2>
-                    <p className="text-slate-400 text-sm mb-10">Conecta con compañeros fuera de tu área mediante misiones asignadas aleatoriamente por correo electrónico.</p>
-                    
-                    {m ? (
-                        <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-[2rem] p-8 mb-6 animate-in zoom-in">
-                            <p className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4 italic text-center">Misión Asignada</p>
-                            <p className="text-xl text-white font-bold mb-6 leading-relaxed">
-                                Tu compañero es <span className="text-indigo-300">{m.n}</span>. <br/>
-                                Descubre su <span className="text-indigo-300 italic">"{m.t}"</span>.
-                            </p>
-                            <button onClick={() => { updateCoins(c => c+100); setM(null); }} className="bg-emerald-500 text-white px-8 py-3 rounded-xl font-black text-xs uppercase shadow-lg">Completar +100</button>
-                        </div>
-                    ) : (
-                        <button onClick={roll} disabled={load} className="bg-indigo-600 hover:bg-indigo-500 text-white px-10 py-5 rounded-3xl font-black text-lg uppercase shadow-xl transition-all">
-                            {load ? "Generando..." : "Solicitar Nueva Misión"}
-                        </button>
-                    )}
-                </div>
-            );
-        };
+            return titles[tab] || '';
+        }
 
-        const MicropolixView = () => {
-            const [sent, setSent] = useState(false);
-            return (
-                <div className="max-w-3xl mx-auto bg-slate-900 border border-slate-800 rounded-[3rem] p-10">
-                    <div className="flex items-center gap-4 mb-8">
-                        <Icon name="building-2" size={32} className="text-amber-500" />
-                        <h2 className="text-2xl font-black text-white italic uppercase tracking-tighter">Micropolix: Inmersión Técnica</h2>
-                    </div>
-                    {sent ? (
-                        <div className="text-center py-10 fade-in">
-                            <Icon name="check-circle-2" size={64} className="text-emerald-500 mx-auto mb-4" />
-                            <h3 className="text-2xl font-black text-white italic uppercase mb-2">Solicitud Enviada</h3>
-                            <p className="text-slate-400 text-sm">Te avisaremos cuando tu compañero acepte la visita semestral.</p>
-                            <button onClick={() => setSent(false)} className="mt-6 text-indigo-400 text-xs font-bold uppercase underline">Nueva Solicitud</button>
-                        </div>
-                    ) : (
-                        <form onSubmit={(e) => { e.preventDefault(); setSent(true); }} className="space-y-6 text-left">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="text-[10px] font-black text-slate-500 uppercase ml-2 mb-2 block tracking-widest">Área a conocer</label>
-                                    <select className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-indigo-500">
-                                        <option>Ingeniería de Datos</option>
-                                        <option>Procesos Químicos</option>
-                                        <option>Desarrollo de Software</option>
-                                        <option>Diseño Industrial</option>
-                                    </select>
+        function getViewHTML(tab) {
+            switch(tab) {
+                case 'dashboard':
+                    return `
+                        <div class="grid lg:grid-cols-3 gap-8">
+                            <div class="lg:col-span-2 space-y-8">
+                                <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-[3rem] p-8 md:p-10 shadow-2xl relative overflow-hidden text-white">
+                                    <div class="relative z-10 space-y-4">
+                                        <h2 class="text-3xl md:text-4xl font-black italic uppercase leading-tight">Tu impacto cultural<br/>está creciendo</h2>
+                                        <p class="text-indigo-100/80 max-w-md text-sm leading-relaxed">Has completado el 84% de tus hitos trimestrales. Desbloquea misiones Pro para conseguir Bio-Credits.</p>
+                                        <button onclick="navigate('misiones')" class="bg-white text-indigo-600 px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all">Ir a Misiones</button>
+                                    </div>
+                                    <i data-lucide="zap" class="absolute right-[-40px] bottom-[-40px] opacity-10 rotate-12 w-48 h-48"></i>
                                 </div>
-                                <div>
-                                    <label className="text-[10px] font-black text-slate-500 uppercase ml-2 mb-2 block tracking-widest">Compañero Referente</label>
-                                    <input type="text" placeholder="Nombre completo" className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-indigo-500" required />
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div class="bg-slate-900 border border-slate-800 rounded-[2rem] p-8 text-center sm:text-left">
+                                        <p class="text-slate-500 font-bold uppercase text-[10px] tracking-widest mb-2">Evolución</p>
+                                        <p class="text-4xl font-black text-white leading-none">84%</p>
+                                    </div>
+                                    <div class="bg-slate-900 border border-slate-800 rounded-[2rem] p-8 text-center sm:text-left">
+                                        <p class="text-slate-500 font-bold uppercase text-[10px] tracking-widest mb-2">Bio-Credits</p>
+                                        <p class="text-4xl font-black text-white leading-none">${state.coins}</p>
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <label className="text-[10px] font-black text-slate-500 uppercase ml-2 mb-2 block tracking-widest">Motivo de la visita</label>
-                                <textarea className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-indigo-500" rows="3" placeholder="¿Qué acciones específicas quieres observar?"></textarea>
+                            <div class="bg-slate-900/50 border border-slate-800 rounded-[3rem] p-8">
+                                <h3 class="text-lg font-black text-white italic uppercase mb-6 flex items-center gap-2">
+                                    <i data-lucide="mail" class="text-indigo-400 w-5 h-5"></i> Notificaciones
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="p-4 bg-white/5 rounded-2xl border border-white/5">
+                                        <p class="text-xs font-bold mb-1 uppercase text-indigo-300">Nueva Misión Flash</p>
+                                        <p class="text-xs text-slate-400 leading-relaxed">Conecta con alguien de Logística y descubre su hobby secreto.</p>
+                                    </div>
+                                    <div class="p-4 border border-white/5 rounded-2xl opacity-50">
+                                        <p class="text-xs font-bold mb-1 uppercase text-slate-400">Bonificación Canjeada</p>
+                                        <p class="text-xs text-slate-500 leading-relaxed">Has recibido 50€ en tu Ticket Restaurante.</p>
+                                    </div>
+                                </div>
                             </div>
-                            <p className="text-[10px] text-slate-500 italic">Esta actividad es semestral y no otorga Bio-Credits directos, se enfoca en la transferencia de conocimiento.</p>
-                            <button type="submit" className="w-full bg-amber-500 text-slate-900 font-black py-4 rounded-2xl uppercase text-sm tracking-widest shadow-lg shadow-amber-500/20 transition-all hover:bg-amber-400">Enviar Formulario de Inmersión</button>
-                        </form>
-                    )}
-                </div>
-            );
-        };
-
-        const BonosView = ({ currentCoins, updateCoins }) => {
-            const list = [
-                { id:1, n: "50€ Ticket Restaurante", c: 1000, i: "utensils" },
-                { id:2, n: "Tarde de Viernes Libre", c: 2000, i: "clock" },
-                { id:3, n: "Formación Técnica Pro", c: 1500, i: "graduation-cap" },
-                { id:4, n: "Día Cumpleaños Libre Extra", c: 3000, i: "cake" },
-                { id:5, n: "Material I+D Premium", c: 1200, i: "zap" },
-                { id:6, n: "Suscripción Científica", c: 800, i: "search" }
-            ];
-            const buy = (cost) => { if(currentCoins >= cost) updateCoins(c => c - cost); };
-            return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {list.map(b => (
-                        <div key={b.id} className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 text-center transition-all hover:border-indigo-500/30 flex flex-col h-full">
-                            <div className="bg-indigo-500/10 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 text-indigo-400 border border-indigo-500/20 shrink-0">
-                                <Icon name={b.i} size={28} />
-                            </div>
-                            <h4 className="text-white font-black uppercase italic text-sm mb-4 leading-tight flex-grow">{b.n}</h4>
-                            <p className="text-amber-500 font-black text-xs mb-6 flex items-center justify-center gap-2">
-                                <Icon name="coins" size={12} /> {b.c} Bio-Credits
-                            </p>
-                            <button 
-                                onClick={() => buy(b.c)} 
-                                disabled={currentCoins < b.c}
-                                className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${currentCoins >= b.c ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}
-                            >
-                                {currentCoins >= b.c ? 'Canjear Bono' : 'Faltan Créditos'}
-                            </button>
                         </div>
-                    ))}
+                    `;
+                case 'contrato':
+                    return `
+                        <div class="space-y-8">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                                ${renderDimCard(0, 'user', 'Visión Propia', 'indigo', '¿Cómo te ves hoy? Tu propósito y motivación personal.')}
+                                ${renderDimCard(1, 'users', 'Visión Equipo', 'purple', '¿Cómo te ven? El impacto que generas en el ecosistema I+D.')}
+                                ${renderDimCard(2, 'trending-up', 'Desarrollo', 'amber', '¿Cómo crecerás? Tu plan de carrera a 90 días.')}
+                            </div>
+                            <div class="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 text-sm text-slate-400 leading-relaxed">
+                                <h4 class="font-black text-white uppercase italic mb-2">¿Por qué el 3D es el nuevo estándar?</h4>
+                                En I+D HUB, el talento tiene profundidad. El contrato 3D une lo que tú quieres, lo que tu equipo necesita y hacia dónde vamos. Ganarás 200 Bio-Credits por cada dimensión completada.
+                            </div>
+                        </div>
+                    `;
+                case 'misiones':
+                    return `
+                        <div class="max-w-2xl mx-auto bg-slate-900 border border-slate-800 rounded-[3rem] p-10 text-center">
+                            <div class="bg-indigo-600/20 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                                <i data-lucide="zap" class="text-indigo-400 w-10 h-10"></i>
+                            </div>
+                            <h2 class="text-3xl font-black text-white italic uppercase mb-2">Misiones Flash</h2>
+                            <p class="text-slate-400 text-sm mb-10">Conecta con compañeros de otros departamentos mediante misiones rápidas enviadas por correo.</p>
+                            ${state.currentMission ? `
+                                <div class="bg-indigo-500/10 border border-indigo-500/20 rounded-[2rem] p-8 mb-6">
+                                    <p class="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4 italic">Misión Asignada</p>
+                                    <p class="text-xl text-white font-bold mb-6">Compañero: <span class="text-indigo-300">${state.currentMission.n}</span><br>Objetivo: <span class="text-indigo-300 italic">Descubrir su "${state.currentMission.t}"</span></p>
+                                    <button onclick="completeMission()" class="bg-emerald-500 text-white px-8 py-3 rounded-xl font-black text-xs uppercase shadow-lg">Misión Cumplida +100</button>
+                                </div>
+                            ` : `
+                                <button onclick="generateMission()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-10 py-5 rounded-3xl font-black text-lg uppercase shadow-xl">Solicitar Nueva Misión</button>
+                            `}
+                        </div>
+                    `;
+                case 'micropolix':
+                    return `
+                        <div class="max-w-3xl mx-auto bg-slate-900 border border-slate-800 rounded-[3rem] p-10">
+                            <div class="flex items-center gap-4 mb-8">
+                                <i data-lucide="building-2" class="text-amber-500 w-8 h-8"></i>
+                                <h2 class="text-2xl font-black text-white italic uppercase tracking-tighter text-left">Micropolix: Inmersión Técnica</h2>
+                            </div>
+                            <form id="micro-form" onsubmit="handleMicro(event)" class="space-y-6 text-left">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="text-[10px] font-black text-slate-500 uppercase ml-2 block mb-2">Área a conocer</label>
+                                        <select class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm">
+                                            <option>Ingeniería de Datos</option>
+                                            <option>Procesos Químicos</option>
+                                            <option>Desarrollo Software</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-black text-slate-500 uppercase ml-2 block mb-2">Compañero Referente</label>
+                                        <input type="text" placeholder="Nombre completo" class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm" required>
+                                    </div>
+                                </div>
+                                <p class="text-[10px] text-slate-500 italic">Inmersión semestral para transferencia de conocimiento. No otorga Bio-Credits directos.</p>
+                                <button type="submit" class="w-full bg-amber-500 text-slate-900 font-black py-4 rounded-2xl uppercase text-sm tracking-widest shadow-lg hover:bg-amber-400">Enviar Formulario de Inmersión</button>
+                            </form>
+                            <div id="micro-success" class="hidden text-center py-6">
+                                <i data-lucide="check-circle-2" class="text-emerald-500 w-16 h-16 mx-auto mb-4"></i>
+                                <p class="font-bold">Solicitud enviada con éxito.</p>
+                            </div>
+                        </div>
+                    `;
+                case 'bonos':
+                    return `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
+                            ${renderBono('50€ Ticket Restaurante', 1000, 'utensils')}
+                            ${renderBono('Tarde Viernes Libre', 2000, 'clock')}
+                            ${renderBono('Día Cumpleaños Extra', 3000, 'cake')}
+                            ${renderBono('Formación Pro I+D', 1500, 'graduation-cap')}
+                            ${renderBono('Material Premium', 1200, 'zap')}
+                            ${renderBono('Suscripción Científica', 800, 'search')}
+                        </div>
+                    `;
+                default: return '';
+            }
+        }
+
+        // --- FUNCIONES DE SOPORTE ---
+        function renderDimCard(idx, icon, title, color, desc) {
+            const isDone = state.doneDimensions[idx];
+            return `
+                <div class="p-8 rounded-[2.5rem] border ${isDone ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-slate-900 border-slate-800'}">
+                    <i data-lucide="${icon}" class="text-${color}-400 mb-6 w-10 h-10"></i>
+                    <h3 class="text-xl font-black text-white uppercase italic mb-2">${title}</h3>
+                    <p class="text-slate-400 text-xs leading-relaxed mb-6">${desc}</p>
+                    <button onclick="completeDimension(${idx})" ${isDone ? 'disabled' : ''} 
+                        class="w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest ${isDone ? 'bg-emerald-500 text-white' : 'bg-indigo-600 text-white'}">
+                        ${isDone ? 'Completado +200' : 'Completar'}
+                    </button>
                 </div>
-            );
+            `;
+        }
+
+        function renderBono(name, cost, icon) {
+            const canBuy = state.coins >= cost;
+            return `
+                <div class="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 flex flex-col h-full items-center">
+                    <div class="bg-indigo-500/10 w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-indigo-400">
+                        <i data-lucide="${icon}" class="w-6 h-6"></i>
+                    </div>
+                    <h4 class="text-white font-black uppercase italic text-sm mb-4 leading-tight flex-grow">${name}</h4>
+                    <p class="text-amber-500 font-black text-xs mb-6 flex items-center gap-2">
+                        <i data-lucide="coins" class="w-3 h-3"></i> ${cost} Bio-Credits
+                    </p>
+                    <button onclick="buyBono(${cost})" ${!canBuy ? 'disabled' : ''} 
+                        class="w-full py-3 rounded-xl font-black text-[10px] uppercase ${canBuy ? 'bg-indigo-600 text-white shadow-lg' : 'bg-slate-800 text-slate-600'}">
+                        ${canBuy ? 'Canjear' : 'Faltan Créditos'}
+                    </button>
+                </div>
+            `;
+        }
+
+        // --- ACCIONES DE USUARIO ---
+        function completeDimension(idx) {
+            state.doneDimensions[idx] = true;
+            addCoins(200);
+            renderContent();
+        }
+
+        function generateMission() {
+            const names = ["Lucía (IT)", "Marc (Legal)", "Sara (Logística)"];
+            const tasks = ["color favorito", "hobby secreto", "canción favorita"];
+            state.currentMission = {
+                n: names[Math.floor(Math.random() * names.length)],
+                t: tasks[Math.floor(Math.random() * tasks.length)]
+            };
+            renderContent();
+        }
+
+        function completeMission() {
+            state.currentMission = null;
+            addCoins(100);
+            renderContent();
+        }
+
+        function handleMicro(e) {
+            e.preventDefault();
+            document.getElementById('micro-form').classList.add('hidden');
+            document.getElementById('micro-success').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function buyBono(cost) {
+            if(state.coins >= cost) {
+                state.coins -= cost;
+                updateCreditsUI();
+                renderContent();
+            }
+        }
+
+        function addCoins(amount) {
+            state.coins += amount;
+            updateCreditsUI();
+        }
+
+        function updateCreditsUI() {
+            document.getElementById('bio-credits-display').innerText = state.coins;
+        }
+
+        function logout() {
+            state.isAuthenticated = false;
+            document.getElementById('app-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+        }
+
+        // --- LOGIN ---
+        document.getElementById('login-form').onsubmit = (e) => {
+            e.preventDefault();
+            const mail = document.getElementById('email').value.toLowerCase();
+            const pass = document.getElementById('password').value;
+
+            if(mail === 'alex@idcorp.com' && pass === 'idcorp2024') {
+                state.isAuthenticated = true;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
+                renderContent();
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+            }
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        // Inicializar iconos al cargar
+        window.onload = () => lucide.createIcons();
     </script>
 </body>
 </html>
