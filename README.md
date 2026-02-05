@@ -43,16 +43,31 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
-        // Componente de Icono para Lucide
+        // Componente de Icono corregido para asegurar renderizado
         const Icon = ({ name, size = 20, className = "" }) => {
+            const iconRef = useRef(null);
+
             useEffect(() => {
-                if (window.lucide) {
-                    window.lucide.createIcons();
+                if (window.lucide && name) {
+                    // Reemplaza el contenido del elemento con el icono de Lucide
+                    const iconElement = document.createElement('i');
+                    iconElement.setAttribute('data-lucide', name);
+                    iconElement.style.width = `${size}px`;
+                    iconElement.style.height = `${size}px`;
+                    
+                    if (iconRef.current) {
+                        iconRef.current.innerHTML = '';
+                        iconRef.current.appendChild(iconElement);
+                        window.lucide.createIcons({
+                            elements: [iconElement]
+                        });
+                    }
                 }
-            }, [name]);
-            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+            }, [name, size]);
+
+            return <span ref={iconRef} className={`inline-flex items-center justify-center ${className}`} style={{ width: size, height: size }}></span>;
         };
 
         const App = () => {
@@ -60,19 +75,19 @@
             const [activeTab, setActiveTab] = useState('dashboard');
             const [coins, setCoins] = useState(1250);
             const [user, setUser] = useState({ name: "Alex I+D", role: "Investigador Senior", dept: "Biotecnología" });
+            const [loginError, setLoginError] = useState('');
 
-            // Credenciales Demo actualizadas
+            // Credenciales Demo
             const [email, setEmail] = useState('Alex@idcorp.com');
             const [password, setPassword] = useState('idcorp2024');
 
             const handleLogin = (e) => {
                 e.preventDefault();
-                // Permitir acceso con las credenciales establecidas
                 if (email.toLowerCase() === 'alex@idcorp.com' && password === 'idcorp2024') {
                     setIsAuthenticated(true);
+                    setLoginError('');
                 } else {
-                    // En un entorno real se mostraría un error en la UI, aquí permitimos el login para la demo
-                    setIsAuthenticated(true);
+                    setLoginError('Credenciales incorrectas para la demo.');
                 }
             };
 
@@ -93,7 +108,8 @@
                                         type="email" 
                                         value={email} 
                                         onChange={e => setEmail(e.target.value)} 
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500" 
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
+                                        placeholder="alex@idcorp.com"
                                     />
                                 </div>
                                 <div>
@@ -102,9 +118,11 @@
                                         type="password" 
                                         value={password} 
                                         onChange={e => setPassword(e.target.value)} 
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500" 
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
+                                        placeholder="••••••••"
                                     />
                                 </div>
+                                {loginError && <p className="text-rose-500 text-xs ml-2 font-bold">{loginError}</p>}
                                 <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-sm mt-6">
                                     Entrar al Ecosistema <Icon name="chevron-right" size={18} />
                                 </button>
@@ -115,11 +133,11 @@
             }
 
             return (
-                <div className="min-h-screen flex flex-col md:flex-row">
+                <div className="min-h-screen flex flex-col md:flex-row bg-[#020617]">
                     {/* Sidebar */}
-                    <aside className="w-full md:w-64 bg-slate-900 border-r border-slate-800 p-4 flex flex-col">
-                        <div className="mb-10 p-2">
-                            <h2 className="text-indigo-400 font-black italic text-2xl tracking-tighter">I+D HUB</h2>
+                    <aside className="w-full md:w-64 bg-slate-900 border-r border-slate-800 p-4 flex flex-col shrink-0">
+                        <div className="mb-10 p-2 text-center md:text-left">
+                            <h2 className="text-indigo-400 font-black italic text-2xl tracking-tighter uppercase">I+D HUB</h2>
                         </div>
                         <nav className="flex-grow space-y-2">
                             {[
@@ -135,7 +153,7 @@
                                     className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-bold text-sm transition-all ${activeTab === item.id ? 'sidebar-active' : 'text-slate-400 hover:bg-slate-800'}`}
                                 >
                                     <Icon name={item.icon} size={20} />
-                                    {item.label}
+                                    <span className="truncate">{item.label}</span>
                                 </button>
                             ))}
                         </nav>
@@ -153,17 +171,17 @@
                     </aside>
 
                     {/* Content Area */}
-                    <main className="flex-grow p-6 md:p-12 overflow-y-auto bg-[#020617]">
-                        <header className="mb-10 flex justify-between items-end">
+                    <main className="flex-grow p-6 md:p-12 overflow-y-auto">
+                        <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                             <div className="fade-in">
-                                <h1 className="text-4xl font-black text-white italic uppercase tracking-tighter leading-none mb-2">
+                                <h1 className="text-3xl md:text-4xl font-black text-white italic uppercase tracking-tighter leading-none mb-2">
                                     {activeTab === 'dashboard' && 'Ecosistema de Impacto'}
                                     {activeTab === 'contrato' && 'Dimensión 1: Contrato 3D'}
                                     {activeTab === 'misiones' && 'Dimensión 2: Misiones Pro'}
                                     {activeTab === 'micropolix' && 'Dimensión 3: Micropolix'}
                                     {activeTab === 'bonos' && 'Bonus Marketplace'}
                                 </h1>
-                                <p className="text-slate-500 font-bold uppercase text-xs tracking-widest">{user.name} • {user.dept}</p>
+                                <p className="text-slate-500 font-bold uppercase text-[10px] md:text-xs tracking-widest">{user.name} • {user.dept}</p>
                             </div>
                         </header>
 
@@ -182,15 +200,15 @@
         const DashboardView = ({ setTab, coins }) => (
             <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
-                    <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden text-white">
+                    <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-[3rem] p-8 md:p-10 shadow-2xl relative overflow-hidden text-white">
                         <div className="relative z-10 space-y-4">
-                            <h2 className="text-4xl font-black italic uppercase leading-none">Tu impacto cultural<br/>está creciendo</h2>
-                            <p className="text-indigo-100/80 max-w-md text-sm">Has completado el 84% de tus hitos trimestrales. Desbloquea misiones Pro para conseguir Bio-Credits.</p>
+                            <h2 className="text-3xl md:text-4xl font-black italic uppercase leading-tight">Tu impacto cultural<br/>está creciendo</h2>
+                            <p className="text-indigo-100/80 max-w-md text-sm leading-relaxed">Has completado el 84% de tus hitos trimestrales. Desbloquea misiones Pro para conseguir Bio-Credits.</p>
                             <button onClick={() => setTab('misiones')} className="bg-white text-indigo-600 px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all">Ir a Misiones</button>
                         </div>
-                        <Icon name="zap" size={200} className="absolute right-[-40px] bottom-[-40px] opacity-10 rotate-12" />
+                        <Icon name="zap" size={180} className="absolute right-[-40px] bottom-[-40px] opacity-10 rotate-12" />
                     </div>
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="bg-slate-900 border border-slate-800 rounded-[2rem] p-8">
                             <div className="flex justify-between items-center mb-2">
                                 <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Evolución</p>
@@ -235,7 +253,7 @@
             };
             return (
                 <div className="space-y-8">
-                    <div className="grid md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <DimensionCard 
                             icon="user" title="Visión Propia" color="indigo"
                             desc="Define cómo te ves hoy en tu puesto, tus motivaciones y propósito personal."
@@ -268,7 +286,7 @@
                 <button 
                     onClick={onAction} 
                     disabled={done}
-                    className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${done ? 'bg-emerald-500 text-white' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`}
+                    className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${done ? 'bg-emerald-500 text-white shadow-lg' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`}
                 >
                     {done ? 'Completado +200' : 'Completar Dimensión'}
                 </button>
@@ -289,7 +307,7 @@
             };
             return (
                 <div className="max-w-2xl mx-auto bg-slate-900 border border-slate-800 rounded-[3rem] p-10 text-center">
-                    <div className="bg-indigo-600/20 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <div className="bg-indigo-600/20 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-indigo-500/20">
                         <Icon name="zap" size={40} className="text-indigo-400" />
                     </div>
                     <h2 className="text-3xl font-black text-white italic uppercase mb-2">Misiones Flash</h2>
@@ -297,12 +315,12 @@
                     
                     {m ? (
                         <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-[2rem] p-8 mb-6 animate-in zoom-in">
-                            <p className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4 italic">Misión Asignada</p>
+                            <p className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4 italic text-center">Misión Asignada</p>
                             <p className="text-xl text-white font-bold mb-6 leading-relaxed">
                                 Tu compañero es <span className="text-indigo-300">{m.n}</span>. <br/>
                                 Descubre su <span className="text-indigo-300 italic">"{m.t}"</span>.
                             </p>
-                            <button onClick={() => { updateCoins(c => c+100); setM(null); }} className="bg-emerald-500 text-white px-8 py-3 rounded-xl font-black text-xs uppercase">Completar +100</button>
+                            <button onClick={() => { updateCoins(c => c+100); setM(null); }} className="bg-emerald-500 text-white px-8 py-3 rounded-xl font-black text-xs uppercase shadow-lg">Completar +100</button>
                         </div>
                     ) : (
                         <button onClick={roll} disabled={load} className="bg-indigo-600 hover:bg-indigo-500 text-white px-10 py-5 rounded-3xl font-black text-lg uppercase shadow-xl transition-all">
@@ -330,10 +348,10 @@
                         </div>
                     ) : (
                         <form onSubmit={(e) => { e.preventDefault(); setSent(true); }} className="space-y-6 text-left">
-                            <div className="grid md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="text-[10px] font-black text-slate-500 uppercase ml-2 mb-2 block">Área a conocer</label>
-                                    <select className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm outline-none">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase ml-2 mb-2 block tracking-widest">Área a conocer</label>
+                                    <select className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-indigo-500">
                                         <option>Ingeniería de Datos</option>
                                         <option>Procesos Químicos</option>
                                         <option>Desarrollo de Software</option>
@@ -341,16 +359,16 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="text-[10px] font-black text-slate-500 uppercase ml-2 mb-2 block">Compañero Referente</label>
-                                    <input type="text" placeholder="Nombre completo" className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm outline-none" required />
+                                    <label className="text-[10px] font-black text-slate-500 uppercase ml-2 mb-2 block tracking-widest">Compañero Referente</label>
+                                    <input type="text" placeholder="Nombre completo" className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-indigo-500" required />
                                 </div>
                             </div>
                             <div>
-                                <label className="text-[10px] font-black text-slate-500 uppercase ml-2 mb-2 block">Motivo de la visita</label>
-                                <textarea className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm outline-none" rows="3" placeholder="¿Qué acciones específicas quieres observar?"></textarea>
+                                <label className="text-[10px] font-black text-slate-500 uppercase ml-2 mb-2 block tracking-widest">Motivo de la visita</label>
+                                <textarea className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-indigo-500" rows="3" placeholder="¿Qué acciones específicas quieres observar?"></textarea>
                             </div>
                             <p className="text-[10px] text-slate-500 italic">Esta actividad es semestral y no otorga Bio-Credits directos, se enfoca en la transferencia de conocimiento.</p>
-                            <button type="submit" className="w-full bg-amber-500 text-slate-900 font-black py-4 rounded-2xl uppercase text-sm tracking-widest shadow-lg shadow-amber-500/10 transition-all hover:bg-amber-400">Enviar Formulario de Inmersión</button>
+                            <button type="submit" className="w-full bg-amber-500 text-slate-900 font-black py-4 rounded-2xl uppercase text-sm tracking-widest shadow-lg shadow-amber-500/20 transition-all hover:bg-amber-400">Enviar Formulario de Inmersión</button>
                         </form>
                     )}
                 </div>
@@ -368,20 +386,20 @@
             ];
             const buy = (cost) => { if(currentCoins >= cost) updateCoins(c => c - cost); };
             return (
-                <div className="grid md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {list.map(b => (
-                        <div key={b.id} className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 text-center transition-all hover:border-indigo-500/30">
-                            <div className="bg-indigo-500/10 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 text-indigo-400">
+                        <div key={b.id} className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 text-center transition-all hover:border-indigo-500/30 flex flex-col h-full">
+                            <div className="bg-indigo-500/10 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 text-indigo-400 border border-indigo-500/20 shrink-0">
                                 <Icon name={b.i} size={28} />
                             </div>
-                            <h4 className="text-white font-black uppercase italic text-sm mb-4 leading-tight">{b.n}</h4>
+                            <h4 className="text-white font-black uppercase italic text-sm mb-4 leading-tight flex-grow">{b.n}</h4>
                             <p className="text-amber-500 font-black text-xs mb-6 flex items-center justify-center gap-2">
                                 <Icon name="coins" size={12} /> {b.c} Bio-Credits
                             </p>
                             <button 
                                 onClick={() => buy(b.c)} 
                                 disabled={currentCoins < b.c}
-                                className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${currentCoins >= b.c ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}
+                                className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${currentCoins >= b.c ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}
                             >
                                 {currentCoins >= b.c ? 'Canjear Bono' : 'Faltan Créditos'}
                             </button>
